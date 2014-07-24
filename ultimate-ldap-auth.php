@@ -35,7 +35,7 @@ function uldapauth_github_updater_init()
             // this is the slug of your plugin
             'slug' => plugin_basename(__FILE__),
             // this is the name of the folder your plugin lives in
-            'proper_folder_name' => 'ultimate-ldap-auth',
+            'proper_folder_name' => dirname( plugin_basename( __FILE__ ) ),
             // the github API url of your github repo
             'api_url' => 'https://api.github.com/repos/nobleclem/Ultimate-LDAP-Authentication',
             // the github raw url of your github repo
