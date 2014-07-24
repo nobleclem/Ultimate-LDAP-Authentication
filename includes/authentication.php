@@ -132,13 +132,37 @@ function uldapauth_authenticate( $user, $username, $password )
     }
     // user doesn't exist, create it
     else if( !$wpUser->ID ) {
+        switch( $uLdapAuthSettings['nameformat'] ) {
+            case 'username':
+                $displayName = $username;
+                break;
+
+            case 'first':
+                $displayName = $ldapUser['first'];
+                break;
+
+            case 'last':
+                $displayName = $ldapUser['last'];
+                break;
+
+            case 'lastfirst':
+                $displayName = trim( $ldapUser['last'] .' '. $ldapUser['first'] );
+                break;
+
+            default:
+            case 'firstlast':
+                $displayName = trim( $ldapUser['first'] .' '. $ldapUser['last'] );
+                break;
+        }
+
         $wpUser = wp_insert_user(array(
-            'user_email' => $ldapUser['email'],
-            'user_login' => $username,
-            'first_name' => $ldapUser['first'],
-            'last_name'  => $ldapUser['last'],
-            'user_pass'  => $password,
-            'role'       => (string) $wpRole
+            'user_email'   => $ldapUser['email'],
+            'user_login'   => $username,
+            'first_name'   => $ldapUser['first'],
+            'last_name'    => $ldapUser['last'],
+            'user_pass'    => $password,
+            'role'         => (string) $wpRole,
+            'display_name' => $displayName
         ));
 
         $user = new WP_User( $wpUser );
@@ -174,3 +198,35 @@ function uldapauth_authenticate( $user, $username, $password )
     return $user;
 }
 add_filter( 'authenticate', 'uldapauth_authenticate', 10, 3 );
+
+
+function uldapauth_authenticate_trans( $trans, $text = null, $domain = null )
+{
+    // get settings
+    $uLdapAuthSettings = get_option( 'uldapauth_settings' );
+
+    switch( $trans ) {
+        case 'Username':
+            if( $uLdapAuthSettings['username_label'] ) {
+                $trans = $uLdapAuthSettings['username_label'];
+            }
+            break;
+    }
+
+    return $trans;
+}
+add_filter( 'gettext', 'uldapauth_authenticate_trans', 10, 3 );
+
+
+function uldapauth_login_message( $message )
+{
+    // get settings
+    $uLdapAuthSettings = get_option( 'uldapauth_settings' );
+
+    if( $uLdapAuthSettings['login_message'] ) {
+        return '<p class="message">'. $uLdapAuthSettings['login_message'] .'</p><br/>';
+    }
+
+    return $message;
+}
+add_filter( 'login_message', 'uldapauth_login_message' );

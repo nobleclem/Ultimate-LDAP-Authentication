@@ -13,7 +13,14 @@ function uldapauth_config_admin_menu()
     );
 
     // GET CURRENT SETTINGS
-    $uLdapAuthSettings    = get_option( 'uldapauth_settings' );
+    $uLdapAuthSettings = get_option( 'uldapauth_settings' );
+
+    if( !$uLdapAuthSettings['wpfallback'] ) {
+        add_filter( 'show_password_fields', 'uldapauth_show_password_fields' );
+
+        add_action( 'check_passwords', 'uldapauth_check_passwords', 10, 3 );
+        add_action( 'user_profile_update_errors', 'uldapauth_user_profile_update_errors', 10, 3 );
+    }
 
     // LDAP AUTH SETTING SETUP
     register_setting(
@@ -75,6 +82,49 @@ function uldapauth_config_admin_menu()
                 '1' => 'Yes',
                 '0' => 'No'
             ),
+        )
+    );
+    add_settings_field(
+        'uldapauth_settings_nameformat',
+        'Display Name Format',
+        'uldapauth_select',
+        'uldapauth',
+        'uldapauth_settings_general',
+        array(
+            'name'  => 'uldapauth_settings[nameformat]',
+            'notes' => 'Sets the default display name format to use for new account creations.',
+            'value' => isset( $uLdapAuthSettings['nameformat'] ) ? $uLdapAuthSettings['nameformat'] : 'firstlast',
+            'options' => array(
+                'username'  => 'username',
+                'first'     => 'firstname',
+                'last'      => 'lastname',
+                'firstlast' => 'firstname lastname',
+                'lastfirst' => 'lastname firstname'
+            ),
+        )
+    );
+    add_settings_field(
+        'uldapauth_settings_username_label',
+        'Username Label',
+        'uldapauth_input',
+        'uldapauth',
+        'uldapauth_settings_general',
+        array(
+            'name'  => 'uldapauth_settings[username_label]',
+            'value' => @$uLdapAuthSettings['username_label'] ? $uLdapAuthSettings['username_label'] : '',
+            'notes' => 'Rename the "Username" Label to something custom to fit your organization.  Leave blank for WP default'
+        )
+    );
+    add_settings_field(
+        'uldapauth_settings_login_message',
+        'Login Message',
+        'uldapauth_input',
+        'uldapauth',
+        'uldapauth_settings_general',
+        array(
+            'name'  => 'uldapauth_settings[login_message]',
+            'value' => @$uLdapAuthSettings['login_message'] ? $uLdapAuthSettings['login_message'] : '',
+            'notes' => 'Provide a message to users before they login.'
         )
     );
 
@@ -497,4 +547,71 @@ function uldapauth_settings_permissions_section()
     </table>
     <p><em>To delete a row just delete the group name text for that row.</em></p>
     ';
+}
+
+
+// THESE MODIFY EXISTING WORDPRESS USER CREATION / EDIT STUFF
+function uldapauth_show_password_fields()
+{
+    return false;
+}
+
+function uldapauth_check_passwords( $userlogin, &$pass1, &$pass2 )
+{
+    $pass1 = $pass2 = md5( time() );
+}
+
+function uldapauth_user_profile_update_errors( &$errors, $update, &$user )
+{
+    if( $update ) {
+        unset( $user->user_pass );
+    }
+    else {
+        // get settings
+        $uLdapAuthSettings    = get_option( 'uldapauth_settings' );
+        $uLdapAuthPermissions = get_option( 'uldapauth_permissions' );
+
+        $results = ULdapAuth::search(
+            @$uLdapAuthSettings['searchdn'],
+            "( {$uLdapAuthSettings['attr_search']}={$user->user_login} )",
+            array(
+                @$uLdapAuthSettings['attr_email'],
+                @$uLdapAuthSettings['attr_firstname'],
+                @$uLdapAuthSettings['attr_lastname'],
+            )
+        );
+
+        // NO USER FOUND STOP
+        if( !$results['count'] ) {
+            $errors->add( 'user_login', __('<strong>ERROR</strong>: User not found in LDAP', 'uldapauth' ) );
+        }
+        else {
+            $user->email      = $results[0][ @$uLdapAuthSettings['attr_email'] ][0];
+            $user->first_name = $results[0][ @$uLdapAuthSettings['attr_firstname'] ][0];
+            $user->last_name  = $results[0][ @$uLdapAuthSettings['attr_lastname'] ][0];
+
+            switch( $uLdapAuthSettings['nameformat'] ) {
+                case 'username':
+                    $user->display_name = $user->user_login;
+                    break;
+
+                case 'first':
+                    $user->display_name = $user->first_name;
+                    break;
+
+                case 'last':
+                    $user->display_name = $user->last_name;
+                    break;
+
+                case 'lastfirst':
+                    $user->display_name = trim( $user->last_name .' '. $user->first_name );
+                    break;
+
+                default:
+                case 'firstlast':
+                    $user->display_name = trim( $user->first_name .' '. $user->last_name );
+                    break;
+            }
+        }
+    }
 }
