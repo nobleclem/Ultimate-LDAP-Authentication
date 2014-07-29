@@ -18,17 +18,22 @@ class ULdapAuth
         self::_link();
 
         // rebind to perform search
-        self::bind( @$_ldapSettings['searchdn_user'], @$_ldapSettings['searchdn_user_pass'] );
+        if( @$_ldapSettings['searchdn_user'] && @$_ldapSettings['searchdn_user_pass'] ) {
+            self::bind(
+                @$_ldapSettings['searchdn_user'],
+                @$_ldapSettings['searchdn_user_pass']
+            );
+        }
 
         // SEARCH FOR USER IN LDAP
-        $search = ldap_search(
+        $search = @ldap_search(
             self::$_link,
             $searchDN,
             $filter,
             $attributes
         );
 
-        return ldap_get_entries( self::$_link, $search );
+        return @ldap_get_entries( self::$_link, $search );
     }
 
     // bind as a user/anonymously to ldap

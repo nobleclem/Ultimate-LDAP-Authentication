@@ -1,5 +1,7 @@
 <?php
 
+global $uldapAuthLink;
+
 /* ADMIN PAGE LOGIC */
 function uldapauth_config_admin_menu()
 {
@@ -210,6 +212,22 @@ function uldapauth_config_admin_menu()
             'name'  => 'uldapauth_settings[searchdn_user_pass]',
             'value' => @$uLdapAuthSettings['searchdn_user_pass'] ? $uLdapAuthSettings['searchdn_user_pass'] : '',
             'notes' => 'Password for the Search User DN'
+        )
+    );
+    add_settings_field(
+        'uldapauth_settings_connectiontest',
+        'Test LDAP Connection?',
+        'uldapauth_radios',
+        'uldapauth',
+        'uldapauth_settings_connection',
+        array(
+            'name'  => 'uldapauth_settings[connectiontest]',
+            'notes' => 'Test connection to the LDAP Server & Test User/Pass if provided.',
+            'value' => '0',
+            'options' => array(
+                '1' => 'Yes',
+                '0' => 'No'
+            ),
         )
     );
     
@@ -426,6 +444,8 @@ function uldapauth_select( $args, $return = false )
 
 function uldapauth_settings_validate( $input )
 {
+    global $uldapAuthLink;
+
     $required = array(
         'attr_search'    => 'Search Attribute',
         'attr_email'     => 'Email Attribute',
@@ -441,10 +461,14 @@ function uldapauth_settings_validate( $input )
         );
     }
 
+    $errors = false;
+
     foreach( $input as $key => &$val ) {
         $val = trim( $val );
 
         if( !$val && isset( $required[ $key ] ) ) {
+            $errors = true;
+
             add_settings_error(
                 'uldapauth_settings_'. $key,
                 'error',
@@ -454,18 +478,108 @@ function uldapauth_settings_validate( $input )
         }
     }
 
+    // test the connection if enabled or connectiontest requested
+    if( (@$input['enabled'] || @$input['connectiontest']) && !$errors ) {
+        $protocol = 'ldap://';
+        if( @$input['protocol'] == 'ssl' ) {
+            $protocol = 'ldaps://';
+        }
+
+        $link = ldap_connect(
+            $protocol . @$input['address'] .':'. @$input['port']
+        );
+
+        ldap_set_option( $link, LDAP_OPT_PROTOCOL_VERSION, 3 );
+
+        if( @$input['protocol'] == 'tls' ) {
+            ldap_start_tls( $link );
+        }
+
+        if( !@ldap_bind( $link ) ) {
+            add_settings_error(
+                'uldapauth_settings_connection',
+                'error',
+                'Unable to connect to LDAP server, LDAP Authentication has been disabled.',
+                'error'
+            );
+
+            $input['enabled'] = 0;
+        }
+        else {
+            $uldapAuthLink = $link;
+
+            add_settings_error(
+                'uldapauth_settings_connection',
+                'connection-ok',
+                'Connection to LDAP server Successful',
+                'updated'
+            );
+        }
+
+        // test user/pass
+        if( @$input['searchdn_user'] && @$input['searchdn_user_pass'] ) {
+            if( @ldap_bind( $input['searchdn_user'], $input['searchdn_user_pass'] ) ) {
+                add_settings_error(
+                    'uldapauth_settings_connection_auth',
+                    'connection-auth-ok',
+                    'LDAP Search User/Pass OK',
+                    'updated'
+                );
+            }
+            else {
+                add_settings_error(
+                    'uldapauth_settings_connection_auth',
+                    'error',
+                    'LDAP Search User/Pass Invalid',
+                    'error'
+                );
+
+                $input['searchdn_user_pass'] = null;
+            }
+        }
+    }
+
+    unset( $input['connectiontest'] );
+
     return $input;
 }
 
 function uldapauth_permissions_validate( $input )
 {
+    global $uldapAuthLink;
+
     $new = array();
+    $uLdapAuthSettings = get_option( 'uldapauth_settings' );
 
     $i = 1;
     foreach( $input as $item ) {
         $item['group'] = trim( $item['group'] );
 
         if( $item['group'] ) {
+            if( $uldapAuthLink ) {
+                $search = @ldap_search(
+                    $uldapAuthLink,
+                    $uLdapAuthSettings['searchdn'],
+                    "( {$uLdapAuthSettings['attr_group']}={$item['group']} )",
+                    array(
+                        $uLdapAuthSettings['attr_member'],
+                        $uLdapAuthSettings['attr_group']
+                    )
+                );
+                $res = @ldap_get_entries( $uldapAuthLink, $search );
+
+                if( !$res['count'] ) {
+                    add_settings_error(
+                        'uldapauth_permissions_'. $i,
+                        'error',
+                        'Unable to find the group: <em>'. $item['group'] .'</em>, group has been deactivated.',
+                        'error'
+                    );
+
+                    $item['active'] = 0;
+                }
+            }
+
             $new[ $i ] = $item;
             $i++;
         }
