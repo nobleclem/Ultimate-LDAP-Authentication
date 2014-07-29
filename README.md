@@ -12,7 +12,8 @@ Wordpress plugin that enables LDAP Authentication and group role management to W
 - Option to add login page message
 - LDAP Attribute mapping
 - Auto updates name & email from ldap on each login
+- Test LDAP Connection
+- Verify LDAP Groups
 
 ## To Do List
-- add connection test option
-- verify groups when configured
+- Refactor code so its easier to maintain
