@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ultimate LDAP Authentication by nobleclem</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Ultimate LDAP Authentication</h1>
+        <p>Wordpress plugin that enables LDAP Authentication and group role management to Wordpress.</p>
+
+        <p class="view"><a href="https://github.com/nobleclem/Ultimate-LDAP-Authentication">View the Project on GitHub <small>nobleclem/Ultimate-LDAP-Authentication</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/nobleclem/Ultimate-LDAP-Authentication/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/nobleclem/Ultimate-LDAP-Authentication/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/nobleclem/Ultimate-LDAP-Authentication">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="ultimate-ldap-authentication" class="anchor" href="#ultimate-ldap-authentication"><span class="octicon octicon-link"></span></a>Ultimate LDAP Authentication</h1>
+
+<p>Wordpress plugin that enables LDAP Authentication and group role management to Wordpress.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Auto create users on login</li>
+<li>LDAP Group access, provisioning, and role defaults</li>
+<li>Option to fallback to WP authentication</li>
+<li>Set users default display name</li>
+<li>Option to change username text</li>
+<li>Option to add login page message</li>
+<li>LDAP Attribute mapping</li>
+<li>Auto updates name &amp; email from ldap on each login</li>
+<li>Test LDAP Connection</li>
+<li>Verify LDAP Groups</li>
+</ul><h2>
+<a name="to-do-list" class="anchor" href="#to-do-list"><span class="octicon octicon-link"></span></a>To Do List</h2>
+
+<ul>
+<li>Refactor code so its easier to maintain, use classes instead of function hell</li>
+<li>Add proper admin validation vs sanitization logic (not something WP makes easy with Settings API)
+
+<ul>
+<li>return previous values and store submitted values to be used to repopulate form with errors (transient data?)</li>
+</ul>
+</li>
+<li>Add MU support
+
+<ul>
+<li>Manage network admin access VIA LDAP groups (require slightly different interface for this section)</li>
+<li>Allow blog admins to set ldap group access</li>
+</ul>
+</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/nobleclem">nobleclem</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
