@@ -6,7 +6,8 @@ global $uldapAuthLink;
 function uldapauth_config_admin_menu()
 {
     // ADD ADMIN MENU LINK
-    add_options_page(
+    add_submenu_page(
+        is_multisite() ? 'settings.php' : 'options-general.php',
         'Ultimate LDAP Auth',
         'Ultimate LDAP Auth',
         'administrator',

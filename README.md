@@ -15,6 +15,13 @@ Wordpress plugin that enables LDAP Authentication and group role management to W
 - Test LDAP Connection
 - Verify LDAP Groups
 
+## Installation Instructions
+1. [Download](http://nobleclem.github.io/Ultimate-LDAP-Authentication/downloads/ultimate-ldap-auth.zip) 1.0 release of plugin
+2. Go to Wordpress Plugins -> Add New -> Upload
+3. Upload zip downloaded in step 1
+4. Activate
+5. Upgrade if necessary to pull down latest code from github
+
 ## To Do List
 - Refactor code so its easier to maintain, use classes instead of function hell
 - Add proper admin validation vs sanitization logic (not something WP makes easy with Settings API)
