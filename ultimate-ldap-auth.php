@@ -2,7 +2,7 @@
 /*
 Plugin Name: Ultimate Ldap Authentication
 Description: LDAP authentication plugin that also allows for ldap group to wordpress role management.
-Version: 1.0
+Version: 1.0.1
 Author: Patrick Springstubbe
 Author URI: http://springstubbe.us
 */
@@ -27,7 +27,9 @@ function uldapauth_github_updater_init()
 {
 
     // UPDATER SETUP
-    include_once ULDAPAUTH_PATH .'includes'. DIRECTORY_SEPARATOR .'updater.php';
+    if( !class_exists( 'WP_GitHub_Updater' ) ) {
+        include_once ULDAPAUTH_PATH .'includes'. DIRECTORY_SEPARATOR .'updater.php';
+    }
     //define( 'WP_GITHUB_FORCE_UPDATE', true );
 
     if( is_admin() ) {

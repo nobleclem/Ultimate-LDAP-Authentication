@@ -1,0 +1,9 @@
+1.0.1 (2014-08-11)
+==================
+Bug fix: check for if git hub updater class already exists
+* should fork updater project and rename to prevent conflicts, this version
+has minor code changes that if not used could break updater
+
+1.0 (2014-07-29)
+================
+Initial Release
