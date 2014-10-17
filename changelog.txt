@@ -1,3 +1,11 @@
+1.0.2 (2014-10-17)
+==================
+Bug fix: if user has ldap account and wp account with same ldap user/email
+then allow user to login (this didn't happen)
+Bug fix: don't check inactive ldap groups
+Bug fix: for new accounts properly compare stored meta ldap groups for the
+user with new ldap groups.
+
 1.0.1 (2014-08-11)
 ==================
 Bug fix: check for if git hub updater class already exists

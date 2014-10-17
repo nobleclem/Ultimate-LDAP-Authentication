@@ -64,7 +64,9 @@ function uldapauth_authenticate( $user, $username, $password )
         // prepare groups for ldap query
         $permGroups = array();
         foreach( $uLdapAuthPermissions as $perm ) {
-            $permGroups[] = "{$uLdapAuthSettings['attr_group']}={$perm['group']}";
+            if( $perm['active'] ) {
+                $permGroups[] = "{$uLdapAuthSettings['attr_group']}={$perm['group']}";
+            }
         }
 
         // get groups in ldap
@@ -116,11 +118,16 @@ function uldapauth_authenticate( $user, $username, $password )
         $newLdapGroups[] = $perm['group'];
     }
     sort( $newLdapGroups );
+    $newLdapGroups = $newLdapGroups ? $newLdapGroups : '';
 
 
     // Check if users exists
     $wpUser = new WP_User();
-    $wpUser = $wpUser->get_data_by( 'email', $ldapUser['email'] );
+    // try by login then email if login lookup fails
+    if( !($wpUser = $wpUser->get_data_by( 'login', $username )) ) {
+        $wpUser = new WP_User();
+        $wpUser = $wpUser->get_data_by( 'email', $ldapUser['email'] );
+    }
     $wpUser = new WP_User( $wpUser->ID );
 
     // STOP: user doesn't exist and Autocreate is off
