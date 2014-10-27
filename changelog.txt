@@ -1,3 +1,7 @@
+1.0.3 (2014-10-27)
+==================
+Bug fix: updater code version checker
+
 1.0.2 (2014-10-17)
 ==================
 Bug fix: if user has ldap account and wp account with same ldap user/email
