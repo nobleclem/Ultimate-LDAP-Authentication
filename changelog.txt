@@ -1,3 +1,8 @@
+1.0.4 (2015-09-11)
+==================
+Disable WP Pass notification during LDAP login
+add force-update flag check
+
 1.0.3 (2014-10-27)
 ==================
 Bug fix: updater code version checker
