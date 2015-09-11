@@ -198,6 +198,9 @@ function uldapauth_authenticate( $user, $username, $password )
 
         update_user_meta( $user->ID, 'uLdapAuth_groups', $newLdapGroups );
 
+        // disable WP password change email during this login event
+        add_filter( 'send_password_change_email', create_function( '$val', 'return false;' ) );
+
         // update user info
         wp_update_user( $updateData );
     }
