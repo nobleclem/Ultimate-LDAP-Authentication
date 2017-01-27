@@ -337,7 +337,7 @@ function uldapauth_settings()
         <? submit_button(); ?>
     </form>
 </div>
-<?
+<?php
 }
 
 
