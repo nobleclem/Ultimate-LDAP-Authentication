@@ -3,7 +3,7 @@
  * Plugin Name: Ultimate Ldap Authentication
  * Plugin URI: https://github.com/umichcreative/Ultimate-LDAP-Authentication/
  * Description: LDAP authentication plugin that also allows for ldap group to wordpress role management.
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: U-M: Michigan Creative
  * Author URI: http://creative.umich.edu
  */
