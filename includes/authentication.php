@@ -217,6 +217,7 @@ function uldapauth_authenticate_trans( $trans, $text = null, $domain = null )
 
     switch( $trans ) {
         case 'Username':
+        case 'Username or Email Address':
             if( $uLdapAuthSettings['username_label'] ) {
                 $trans = $uLdapAuthSettings['username_label'];
             }
